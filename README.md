@@ -9,7 +9,7 @@
 <p><bold>Every time this script is ran, the most recent csv file will be downloaded to ensure that the resources are as up to date as they can be.</bold></p>
 
 ## Directions
-<p>After downloading, navigate to the directory containing the python files within your terminal. Be sure to run <b style= "font-style: italic;">pip install -r requirements.txt</b> for first tiime use to ensure dependancies are installed.</p>
+<p>After downloading, navigate to the directory containing the python files within your terminal. Be sure to run <b style= "font-style: italic; color: red;">pip install -r requirements.txt</b> for first tiime use to ensure dependancies are installed.</p>
 
 - <p>Requires Pandas to be installed</p>
 ```bash
