@@ -10,17 +10,14 @@
 
 ## Directions
 <p>After downloading, navigate to the directory containing the python files within your terminal. Be sure to run ***pip install -r requirements.txt*** for first tiime use to ensure dependancies are installed.</p>
-<p>Requires Pandas to be installed</p>
 
-```ps
+- <p>Requires Pandas to be installed</p>
+```bash
 python -m pip install -r requirements.txt
 
 ```
-<p>Once setup is complete, simply run main() from within the lolDriverScan directory where the python files reside.</p>
-
-### Example:
-
-```ps
+- <p>Once setup is complete, simply run main() from within the lolDriverScan directory where the python files reside.</p>
+```bash
 python ./main.py
 
 ```
