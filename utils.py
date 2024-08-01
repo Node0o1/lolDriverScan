@@ -51,7 +51,8 @@ def compare_driver_hash_SHA256(driver_file:str, attrs:list, logfile:str) -> None
             hash_object.update(read_chunk)
     sha256_value = hash_object.hexdigest()
     vulnerable_hashes:list = attrs[2].split(',')
-    print(f"Known vulnerable file-hashes for {driver_file.split('\\')[-1]} (SHA-256): {len(vulnerable_hashes)}")
+    drivername:str = driver_file.split('\\')[-1]
+    print(f"Known vulnerable file-hashes for {drivername} (SHA-256): {len(vulnerable_hashes)}")
     print(f"Local Driver Hash (SHA-256): {sha256_value}")
     print("Comparing hashes...")
     for i, hash in enumerate(vulnerable_hashes):
