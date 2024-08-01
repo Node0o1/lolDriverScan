@@ -11,7 +11,7 @@
 ## Directions
 <p>After downloading, navigate to the directory containing the python files within your terminal. Be sure to run <b style= "font-style: italic; color: red;">pip install -r requirements.txt</b> for first tiime use to ensure dependancies are installed.</p>
 
-- <p>Requires Pandas to be installed</p>
+- <p>Requires Pandas to be installed and can be done by running the following from within the same directory as the requirements.txt file.</p>
 ```sh
 python -m pip install -r requirements.txt
 
