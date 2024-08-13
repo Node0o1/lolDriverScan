@@ -2,13 +2,15 @@ import os
 import sqlite3
 import pandas as pd
 import hashlib
+from enum import Enum
 from globals import SYSTEM_DRIVE, LOGFILE_NAME
+
 
 def get_csv() -> tuple:
     curr_path:str = os.getcwd()
     outfile:str = "loldrivers.csv"
     csv_file:str = os.path.join(curr_path, outfile)
-    print(csv_file)
+    print(f"Filepath: {csv_file}")
     os.system(f'curl https://www.loldrivers.io/api/drivers.csv > {csv_file}')
     return (csv_file, curr_path)
     
@@ -32,6 +34,12 @@ def get_file_tags(db_file:str) -> list:
     return file_tags
 
 def crawl_system_files(db_file:str, file_tags:list, logfile:str) -> None:
+
+    class Hashtypes(Enum):
+        SHA256 = 2
+        SHA1 = 3
+        MD5 = 4
+
     for rootdir, _, files in os.walk(SYSTEM_DRIVE):
         for file in files:
             if(not(file.endswith(r'sys'))): continue
@@ -41,46 +49,57 @@ def crawl_system_files(db_file:str, file_tags:list, logfile:str) -> None:
                         driver_file:str = os.path.join(rootdir, tag)
                         print(f"{chr(0x0a)}Found Driver File: {driver_file}")
                         attrs:list = get_tag_attrs(db_file, tags)
-                        compare_driver_hash_SHA256(driver_file, attrs, logfile)
+                        sha1_hash, sha256_hash, md5_hash = get_hash_set(driver_file)
+                        compare_file_hash(driver_file, sha1_hash, Hashtypes.SHA1.name, attrs[Hashtypes.SHA1.value].split(','), attrs, logfile)
+                        compare_file_hash(driver_file, sha256_hash, Hashtypes.SHA256.name, attrs[Hashtypes.SHA256.value].split(','), attrs, logfile)
+                        compare_file_hash(driver_file, md5_hash, Hashtypes.MD5.name, attrs[Hashtypes.MD5.value].split(','), attrs, logfile)
 
-def compare_driver_hash_SHA256(driver_file:str, attrs:list, logfile:str) -> None:
+def get_hash_set(driver_file:str) -> tuple:
     chunk_size:int = 1024
-    hash_object:object = hashlib.sha256()
+    sha1:object = hashlib.sha1()
+    sha256:object = hashlib.sha256()
+    md5:object = hashlib.md5()
     with open(driver_file, mode="rb") as fhandle:
         while read_chunk := fhandle.read(chunk_size):
-            hash_object.update(read_chunk)
-    sha256_value = hash_object.hexdigest()
-    vulnerable_hashes:list = attrs[2].split(',')
-    drivername:str = driver_file.split('\\')[-1]
-    print(f"Known vulnerable file-hashes for {drivername} (SHA-256): {len(vulnerable_hashes)}")
-    print(f"Local Driver Hash (SHA-256): {sha256_value}")
+            sha1.update(read_chunk)
+            sha256.update(read_chunk)
+            md5.update(read_chunk)
+    return (sha1.hexdigest(), sha256.hexdigest(), md5.hexdigest())
+
+
+def compare_file_hash(driver_file:str, file_hash:str, hashtype:str, hashlist:list, attrs:list, logfile:str ) -> None:
+    print(f"Known vulnerable file-hashes for {driver_file.split('\\')[-1]} ({hashtype}): {len(hashlist)}")
+    print(f"Local Driver Hash ({hashtype}): {file_hash}")
     print("Comparing hashes...")
-    for i, hash in enumerate(vulnerable_hashes):
-        print(f"Threat Hash #{i+1}: {hash}")
-        if(not(hash == sha256_value)): 
+    for i, hash in enumerate(hashlist):
+        print(f"Threat Hash #{i+1} ({hashtype}): {hash}")
+        if(not(hash == file_hash)): 
             print("Hash does not match.")
             continue
         print("Hash Match! Vulnerable/ Malicious Driver Found.")
-        export_threat_details(driver_file, sha256_value, attrs, logfile)
+        export_threat_details(driver_file, file_hash, hashtype, hashlist, attrs, logfile)
 
-def export_threat_details(driver_file:str, sha256_value:str, attrs:list, logfile:str) -> None:
+
+def export_threat_details(driver_file:str, hash_value:str, hashtype:str, hashlist:str, attrs:list, logfile:str) -> None:
     print("Exporting details...")
     with open(logfile, mode='a') as fhandle:
-        fhandle.write(f"{chr(0x0a)}{driver_file} Threat Details{chr(0x0a)}")
+        fhandle.write(f'{chr(0x0a)}')
         fhandle.write(('='*50)+chr(0x0a))
-        fhandle.write(f"{chr(0x09)}Hash Found: {sha256_value}{chr(0x0a)}")
-        fhandle.write(f"{chr(0x09)}Threat Hashes: {attrs[2]}{chr(0x0a)}")
+        fhandle.write(f"{chr(0x09)}File Path: {driver_file}{chr(0x0a)}")
+        fhandle.write(f"{chr(0x09)}Hash Type: {hashtype}{chr(0x0a)}")
+        fhandle.write(f"{chr(0x09)}Hash Found: {hash_value}{chr(0x0a)}")
+        fhandle.write(f"{chr(0x09)}Threat Hashes: {hashlist}{chr(0x0a)}")
         fhandle.write(f"{chr(0x09)}Category: {attrs[0]}{chr(0x0a)}")
-        fhandle.write(f"{chr(0x09)}Description: {attrs[3]}{chr(0x0a)}")
+        fhandle.write(f"{chr(0x09)}Description: {attrs[5]}{chr(0x0a)}")
         fhandle.write(f"{chr(0x09)}Resources: {attrs[1]}{chr(0x0a)}")
-        fhandle.write(f"{chr(0x09)}Verified Threat: {bool(attrs[4])}{chr(0x0a)}")
+        fhandle.write(f"{chr(0x09)}Verified Threat: {bool(attrs[6])}{chr(0x0a)}")
         fhandle.write(('='*50)+chr(0x0a))
     
 def get_tag_attrs(db_file:str, tags:tuple) -> list:
     conn:object = sqlite3.connect(db_file)
     cursor:object = conn.cursor()
     query:str = f'''
-    SELECT drivers.Category, drivers.Resources, drivers.KnownVulnerableSamples_SHA256, drivers.KnownVulnerableSamples_Description, drivers.Verified 
+    SELECT drivers.Category, drivers.Resources, drivers.KnownVulnerableSamples_SHA256, drivers.KnownVulnerableSamples_SHA1, drivers.KnownVulnerableSamples_MD5, drivers.KnownVulnerableSamples_Description, drivers.Verified 
     FROM drivers
     WHERE drivers.Tags = ?
     ;'''
@@ -91,6 +110,7 @@ def get_tag_attrs(db_file:str, tags:tuple) -> list:
 
 def set_logfile(curr_path:str) -> str:
     logfile:str = os.path.join(curr_path, LOGFILE_NAME)
+    print(f"Filepath: {logfile}")
     with open(logfile, mode='w') as fhandle:
         fhandle.write('Vulnerable/ Malicious Driver Log File\n')
     return logfile
