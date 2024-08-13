@@ -6,7 +6,7 @@
 
 ## Whats New
 <p>Expanded hash types for file comparison to include SHA1 and MD5.</p>
-<p>REASON: I noticed that not all drivers have SHA256 hashes uploaded to loldrivirs csv file. So to make this scan as thourough as I can, the application is now scanning all known hashes of all available hash types.</p>
+<p>REASON: I noticed that not all drivers have SHA256 hashes uploaded to loldrivers website or csv file. So to make this scan as thourough as I can, the application is now scanning all known hashes of all available hash types for each file found in the database.</p>
 
 ## About
 > This script uses resources from https://www.loldrivers.io/ (Living Off the Land) which is a collection of known malicious or exploited drivers. The script downloads a csv file of the details and then exports that csv into an sqlite database. From there it will create a list of all the names of the known malicious or vulnerable drivers. After the list is created, the script will scan the entire system drive searching for any of the files listed. If found, the script then generates the sha-256 hash of the file on your pc and compares it to all the known ill sha-256 hashes from that exact driver (many variants of a single driver). Matching hashes to a known malicious or vulnerable driver will export the file path and name, local file-hash, known hashes, details of the driver (if details exist), category of malicious or vulnerable, and whether or not this threat has actually been verified. All to a log file. The downloaded csv file will be deleted once the database has been created and all created files will appear in the current working directory. </p>
