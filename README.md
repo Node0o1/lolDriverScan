@@ -5,7 +5,7 @@
 <center><p>Scans the OS and system drivers and compares them to a curated list of known vulnerable and malicous drivers from a .csv file downloaded from "Living Off the Land" at https://www.loldrivers.io/</p></center>
 
 ## Whats New
-<p>Expanded hash types for file comparison to include SHA1 and MD5.</p>
+<p>Expanded hash types for file comparison to include SHA256, SHA1, and MD5.</p>
 <p>REASON: I noticed that not all drivers have SHA256 hashes uploaded to loldrivers website or csv file. So, to make this scan as thourough as I can the application is now scanning all known hashes of all available hash types for each file found in the database.</p>
 
 ## About
