@@ -5,7 +5,6 @@ import hashlib
 from enum import Enum
 from globals import SYSTEM_DRIVE, LOGFILE_NAME
 
-
 def get_csv() -> tuple:
     curr_path:str = os.getcwd()
     outfile:str = "loldrivers.csv"
@@ -34,11 +33,11 @@ def get_file_tags(db_file:str) -> list:
     return file_tags
 
 def crawl_system_files(db_file:str, file_tags:list, logfile:str) -> None:
-
+    logged:bool = False
     class Hashtypes(Enum):
-        SHA256 = 2
-        SHA1 = 3
-        MD5 = 4
+        SHA256:int = 2
+        SHA1:int = 3
+        MD5:int = 4
 
     for rootdir, _, files in os.walk(SYSTEM_DRIVE):
         for file in files:
@@ -53,6 +52,7 @@ def crawl_system_files(db_file:str, file_tags:list, logfile:str) -> None:
                         compare_file_hash(driver_file, sha1_hash, Hashtypes.SHA1.name, attrs[Hashtypes.SHA1.value].split(','), attrs, logfile)
                         compare_file_hash(driver_file, sha256_hash, Hashtypes.SHA256.name, attrs[Hashtypes.SHA256.value].split(','), attrs, logfile)
                         compare_file_hash(driver_file, md5_hash, Hashtypes.MD5.name, attrs[Hashtypes.MD5.value].split(','), attrs, logfile)
+    return logged
 
 def get_hash_set(driver_file:str) -> tuple:
     chunk_size:int = 1024
@@ -66,7 +66,6 @@ def get_hash_set(driver_file:str) -> tuple:
             md5.update(read_chunk)
     return (sha1.hexdigest(), sha256.hexdigest(), md5.hexdigest())
 
-
 def compare_file_hash(driver_file:str, file_hash:str, hashtype:str, hashlist:list, attrs:list, logfile:str ) -> None:
     print(f"Known vulnerable file-hashes for {driver_file.split('\\')[-1]} ({hashtype}): {len(hashlist)}")
     print(f"Local Driver Hash ({hashtype}): {file_hash}")
@@ -78,7 +77,7 @@ def compare_file_hash(driver_file:str, file_hash:str, hashtype:str, hashlist:lis
             continue
         print("Hash Match! Vulnerable/ Malicious Driver Found.")
         export_threat_details(driver_file, file_hash, hashtype, hashlist, attrs, logfile)
-
+        logged = True
 
 def export_threat_details(driver_file:str, hash_value:str, hashtype:str, hashlist:str, attrs:list, logfile:str) -> None:
     print("Exporting details...")
@@ -114,3 +113,7 @@ def set_logfile(curr_path:str) -> str:
     with open(logfile, mode='w') as fhandle:
         fhandle.write('Vulnerable/ Malicious Driver Log File\n')
     return logfile
+
+def log_no_err(logfile:str) -> None:
+    with open(logfile, mode="a") as fhandle:
+        fhandle.write("No known malicious/ vulnerable drivers found.")
