@@ -5,6 +5,8 @@ import hashlib
 from enum import Enum
 from globals import SYSTEM_DRIVE, LOGFILE_NAME
 
+logged:bool = False
+
 def get_csv() -> tuple:
     curr_path:str = os.getcwd()
     outfile:str = "loldrivers.csv"
@@ -33,7 +35,6 @@ def get_file_tags(db_file:str) -> list:
     return file_tags
 
 def crawl_system_files(db_file:str, file_tags:list, logfile:str) -> None:
-    logged:bool = False
     class Hashtypes(Enum):
         SHA256:int = 2
         SHA1:int = 3
