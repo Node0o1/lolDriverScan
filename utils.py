@@ -1,4 +1,5 @@
 import os
+import requests as req
 import sqlite3
 import pandas as pd
 import hashlib
