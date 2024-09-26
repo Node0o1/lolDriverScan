@@ -12,7 +12,8 @@ def get_csv() -> tuple:
     outfile:str = "loldrivers.csv"
     csv_file:str = os.path.join(curr_path, outfile)
     print(f"Filepath: {csv_file}")
-    os.system(f'curl https://www.loldrivers.io/api/drivers.csv > {csv_file}')
+    with open(csv_file, mode='wb') as fhandle:
+        fhandle.write(req.get("https://www.loldrivers.io/api/drivers.csv").content)
     return (csv_file, curr_path)
     
 def csv_to_db(csv_file:str, curr_path:str) -> str:
