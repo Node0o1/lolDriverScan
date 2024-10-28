@@ -36,7 +36,7 @@ def get_file_tags(db_file:str) -> list:
     conn.close()
     return file_tags
 
-def crawl_system_files(db_file:str, file_tags:list, logfile:str) -> None:
+def crawl_system_files(db_file:str, file_tags:list, logfile:str) -> bool:
     class Hashtypes(Enum):
         SHA256:int = 2
         SHA1:int = 3
