@@ -3,15 +3,17 @@
 
 ## Description
 <center>
-<p>Scans the OS and system drivers and compares them to a curated list of known vulnerable and malicous drivers from a .csv file downloaded from "Living Off the Land" at https://www.loldrivers.io/</p>
-<p>Hash types for file comparison to include SHA256, SHA1, and MD5.</p>
+<p>Scans the OS system drivers and compares them to a curated list of known vulnerable and malicous drivers from "Living Off the Land" at https://www.loldrivers.io/</p>
+<p>Hash types for file comparison include SHA1, SHA256, and MD5.</p>
+<p>Logs all found driver threats to a log file.
+<p>Runs the System File Checker Utility to scan system files for integrity violations.</p>
 </center>
 
 ## Whats New
 <ul><li>Writes "No malicious / vulnerable driver found" to error log when no match exist</li></ul>
 
 ## About
-> This script uses resources from https://www.loldrivers.io/ (Living Off the Land) which is a collection of known malicious or exploited drivers. The script downloads a csv file of the details and then exports that csv into an sqlite database. From there it will create a list of all the names of the known malicious or vulnerable drivers. After the list is created, the script will scan the entire system drive searching for any of the files listed. If found, the script then generates the sha-256 hash of the file on your pc and compares it to all the known ill sha-256 hashes from that exact driver (many variants of a single driver). Matching hashes to a known malicious or vulnerable driver will export the file path and name, local file-hash, known hashes, details of the driver (if details exist), category of malicious or vulnerable, and whether or not this threat has actually been verified. All to a log file. The downloaded csv file will be deleted once the database has been created and all created files will appear in the current working directory. </p>
+> This program uses resources from https://www.loldrivers.io/ (Living Off the Land) which is responsible for the collection of known malicious or exploited drivers used in this scanner. This script imports their csv file into an sqlite database and scans your system drive searching for these threats. If one is found, the script will generate the SHA1, SHA256, and MD5 hashes of the driver version found on your device and compare it to all the known ill hashes of this driver from within the database. Matching a hash to a known malicious or vulnerable driver will export details to a log file including the filename, filepath, local file-hash, known malicious hashes of the driver, the generated hashes of the local installation (SHA1, SHA256, MD5), details of the driver (if exist), the category of whether the driver is malicious or vulnerable, and whether or not this threat has actually been verified. Identified maliciuos or vulnerable drivers that are not currently in use on the system should be removed and those drivers that are needed should be updated or replaced. All created files such as the csv, databse, and log file will appear in the current working directory. The csv file will be deleted once the export to the database has completed.</p>
 <p><bold>Every time this script is ran, the most recent csv file will be downloaded to ensure that the resources are as up to date as they can be.</bold></p>
 
 ## Directions
